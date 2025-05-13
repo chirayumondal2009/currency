@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>USD Live Currency Rates</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      margin: 0;
+      padding: 2rem;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 2rem;
+    }
+    .rates-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: auto;
+    }
+    .rate-card {
+      background-color: #ffffffcc;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      font-size: 1.1rem;
+      transition: transform 0.2s;
+    }
+    .rate-card:hover {
+      transform: scale(1.05);
+    }
+    .flag {
+      font-size: 2rem;
+      margin-bottom: 0.3rem;
+    }
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Live USD Exchange Rates</h1>
+  <div class="rates-container" id="rates">
+    <p style="grid-column: 1 / -1; text-align: center;">Loading rates...</p>
+  </div>
+
+  <footer>Powered by Frankfurter API</footer>
+
+  <script>
+    const targetCurrencies = [
+      { code: "EUR", flag: "🇪🇺" },
+      { code: "INR", flag: "🇮🇳" },
+      { code: "GBP", flag: "🇬🇧" },
+      { code: "JPY", flag: "🇯🇵" },
+      { code: "AUD", flag: "🇦🇺" },
+      { code: "CAD", flag: "🇨🇦" },
+      { code: "CHF", flag: "🇨🇭" },
+      { code: "CNY", flag: "🇨🇳" },
+      { code: "NZD", flag: "🇳🇿" },
+      { code: "ZAR", flag: "🇿🇦" }
+    ];
+
+    const apiUrl = `https://api.frankfurter.app/latest?from=USD&to=${targetCurrencies.map(c => c.code).join(',')}`;
+
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => {
+        const container = document.getElementById('rates');
+        container.innerHTML = ''; // Clear loading text
+
+        targetCurrencies.forEach(currency => {
+          const rate = data.rates[currency.code];
+          const card = document.createElement('div');
+          card.className = 'rate-card';
+
+          card.innerHTML = `
+            <div class="flag">${currency.flag}</div>
+            <strong>1 USD</strong> = <br>
+            <strong>${rate}</strong> ${currency.code}
+          `;
+
+          container.appendChild(card);
+        });
+      })
+      .catch(error => {
+        document.getElementById('rates').innerHTML = '<p>Error loading rates.</p>';
+        console.error('Error:', error);
+      });
+  </script>
+
+</body>
+</html>
